@@ -5,6 +5,59 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Snake 30</title>
   <style>
+    html, body{
+      width:100%;
+      overflow-x:hidden;
+    }
+
+    canvas{
+      width:100%;
+      max-width:520px;
+      aspect-ratio:1 / 1;
+      display:block;
+    }
+
+    .topbar{
+      flex-wrap:wrap;
+    }
+
+    .stats{
+      flex-wrap:wrap;
+    }
+
+    @media (max-width: 480px){
+      body{
+        padding:10px;
+      }
+
+      .topbar{
+        padding:10px 12px;
+      }
+
+      .cta{
+        padding:10px 12px;
+      }
+
+      .dpad{
+        grid-template-columns:58px 58px 58px;
+        grid-template-rows:58px 58px 58px;
+      }
+
+      .dpad button{
+        width:58px;
+        height:58px;
+        border-radius:16px;
+      }
+
+      .cta:last-child{
+        justify-content:center;
+      }
+
+      .cta:last-child .btn{
+        flex:1 1 100%;
+        text-align:center;
+      }
+    }
     :root{
       --bg:#0b0f14; --panel:#121926; --text:#e7eefc; --muted:#95a3bf;
       --accent:#4de3a3; --danger:#ff5d6c;
@@ -12,17 +65,24 @@
     }
     *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 50% -20%, #1b2a44 0%, var(--bg) 55%);
-      color:var(--text);
-      display:flex; min-height:100vh; align-items:center; justify-content:center;
-      padding:16px;
-      touch-action: none; /* important pour éviter le scroll pendant le jeu */
-      user-select:none;
-    }
+        margin:0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        background: radial-gradient(1200px 800px at 50% -20%, #1b2a44 0%, var(--bg) 55%);
+        color:var(--text);
+        display:flex;
+        min-height:100vh;
+        align-items:flex-start;
+        justify-content:center;
+        padding:12px;
+        touch-action: none;
+        user-select:none;
+        overflow-x:hidden;
+      }
     .wrap{
-      width:min(560px, 100%);
-      display:grid; gap:12px;
+      width:100%;
+      max-width:560px;
+      display:grid;
+      gap:12px;
     }
     .topbar{
       background: rgba(18,25,38,0.75);
@@ -68,16 +128,20 @@
     }
     .controls{
       display:grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns:1fr;
       gap:12px;
       align-items:center;
     }
     .cta{
-      display:flex; gap:10px; justify-content:space-between; align-items:center;
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
       background: rgba(18,25,38,0.75);
       border:1px solid rgba(255,255,255,0.08);
       border-radius:16px;
       padding:12px 14px;
+      flex-wrap:wrap;
     }
     .cta .hint{font-size:12px; color:var(--muted); line-height:1.2;}
     .btn{
@@ -93,7 +157,8 @@
     .btn:active{transform: scale(0.98);}
     .dpad{
       justify-self:center;
-      width:min(260px, 100%);
+      width:100%;
+      max-width:260px;
       display:grid;
       grid-template-columns: 64px 64px 64px;
       grid-template-rows: 64px 64px 64px;
@@ -155,7 +220,7 @@
     <div class="topbar">
       <div class="title">
         <strong>Snake — objectif 30</strong>
-        <span>Swipe ou D-pad • Pause: bouton</span>
+        <span>Swipe sur l'écran pour contrôler le serpent</span>
       </div>
       <div class="stats">
         <div class="pill">Score: <b id="score">0</b>/30</div>
@@ -168,29 +233,12 @@
     </div>
 
     <div class="controls">
-      <div class="cta">
-        <div class="hint">
-          <div><b>Règles</b> : mange 🍎, traverse les murs, évite de te mordre.</div>
-          <div>À <b>30</b>, le jeu s’arrête (victoire).</div>
-        </div>
-      </div>
-
-      <div class="dpad" aria-label="Contrôles">
-        <button class="up" data-dir="up" aria-label="Haut">▲</button>
-        <button class="left" data-dir="left" aria-label="Gauche">◀</button>
-        <div class="mid"></div>
-        <button class="right" data-dir="right" aria-label="Droite">▶</button>
-        <button class="down" data-dir="down" aria-label="Bas">▼</button>
-      </div>
-
       <div class="cta" style="justify-content:flex-end; gap:10px;">
         <button class="btn" id="btnStart">▶︎ Start</button>
         <button class="btn" id="btnPause">⏸ Pause</button>
         <button class="btn" id="btnRestart">↻ Restart</button>
       </div>
     </div>
-
-    <div class="msg">Astuce mobile : swipe sur la zone du jeu. Sur desktop : flèches du clavier.</div>
   </div>
 
   <div class="overlay" id="overlay">
