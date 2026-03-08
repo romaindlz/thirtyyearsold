@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Invitation anniversaire 🎉</title>
+  <style>
+    :root{
+      --bg1:#fff4d6;
+      --bg2:#ffd7e2;
+      --bg3:#ffe9b8;
+      --card:#ffffff;
+      --text:#4a3b2f;
+      --muted:#7a6a5c;
+      --accent:#ff7aa2;
+      --accent2:#ffb347;
+      --accent3:#ffd966;
+      --line:#f3d9c8;
+      --shadow:0 18px 40px rgba(214, 135, 92, 0.18);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.6), transparent 35%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.45), transparent 30%),
+        linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      overflow-x:hidden;
+    }
+
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+
+    .confetti span{
+      position:absolute;
+      width:10px;
+      height:18px;
+      border-radius:4px;
+      opacity:0.75;
+      animation: float 10s linear infinite;
+    }
+
+    .confetti span:nth-child(1){left:8%; top:-10%; background:#ff8fb1; animation-delay:0s;}
+    .confetti span:nth-child(2){left:18%; top:-14%; background:#ffd966; animation-delay:1s;}
+    .confetti span:nth-child(3){left:30%; top:-8%; background:#ffb347; animation-delay:2.2s;}
+    .confetti span:nth-child(4){left:42%; top:-12%; background:#ff8fb1; animation-delay:0.8s;}
+    .confetti span:nth-child(5){left:56%; top:-9%; background:#ffd966; animation-delay:1.8s;}
+    .confetti span:nth-child(6){left:68%; top:-15%; background:#ffb347; animation-delay:2.8s;}
+    .confetti span:nth-child(7){left:80%; top:-10%; background:#ff8fb1; animation-delay:0.4s;}
+    .confetti span:nth-child(8){left:92%; top:-13%; background:#ffd966; animation-delay:1.4s;}
+
+    @keyframes float{
+      0%{ transform:translateY(0) rotate(0deg); }
+      100%{ transform:translateY(120vh) rotate(360deg); }
+    }
+
+    .card{
+      width:min(860px, 100%);
+      background:rgba(255,255,255,0.92);
+      backdrop-filter:blur(6px);
+      border:1px solid rgba(255,255,255,0.7);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      position:relative;
+      z-index:1;
+    }
+
+    .badge{
+      display:inline-block;
+      background:linear-gradient(135deg, var(--accent), #ff9f80);
+      color:white;
+      font-weight:700;
+      font-size:13px;
+      padding:8px 14px;
+      border-radius:999px;
+      margin-bottom:16px;
+      letter-spacing:0.02em;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(30px, 6vw, 48px);
+      line-height:1.05;
+      color:#5a3f32;
+    }
+
+    .subtitle{
+      margin:0 0 24px;
+      font-size:17px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+
+    .hero{
+      background:linear-gradient(135deg, #fff7ef, #fff1f5);
+      border:1px solid #f7dfd3;
+      border-radius:22px;
+      padding:22px;
+      margin-bottom:22px;
+      text-align:center;
+    }
+
+    .hero .emoji{
+      font-size:42px;
+      margin-bottom:10px;
+    }
+
+    .hero p{
+      margin:0;
+      font-size:18px;
+      font-weight:600;
+      color:#6b5143;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:16px;
+      margin-bottom:22px;
+    }
+
+    .info{
+      background:#fffaf6;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+    }
+
+    .label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:800;
+      color:#d97757;
+      margin-bottom:8px;
+    }
+
+    .value{
+      font-size:19px;
+      font-weight:700;
+      line-height:1.35;
+    }
+
+    .program,
+    .map-card{
+      background:linear-gradient(135deg, #fffdf7, #fff6fb);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:20px;
+      margin-bottom:20px;
+    }
+
+    .program h2,
+    .map-card h2{
+      margin:0 0 14px;
+      font-size:24px;
+      color:#5b4337;
+    }
+
+    .timeline{
+      display:grid;
+      gap:12px;
+    }
+
+    .item{
+      display:grid;
+      grid-template-columns:90px 1fr;
+      gap:12px;
+      align-items:start;
+      background:rgba(255,255,255,0.75);
+      border:1px solid #f4e2d7;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+
+    .time{
+      font-weight:800;
+      color:#ff7aa2;
+      font-size:15px;
+    }
+
+    .desc{
+      color:#5c4a40;
+      line-height:1.4;
+    }
+
+    .map-text{
+      margin:0 0 16px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .map-frame{
+      overflow:hidden;
+      border-radius:18px;
+      border:1px solid #f4e2d7;
+      background:#fff;
+      margin-bottom:16px;
+    }
+
+    .map-frame iframe{
+      width:100%;
+      height:320px;
+      border:0;
+      display:block;
+    }
+
+    .action-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      display:inline-block;
+      text-decoration:none;
+      background:linear-gradient(135deg, var(--accent), var(--accent2));
+      color:white;
+      font-weight:800;
+      padding:13px 20px;
+      border-radius:14px;
+      box-shadow:0 10px 22px rgba(255, 122, 162, 0.22);
+      transition:transform 0.15s ease;
+    }
+
+    .btn:active{
+      transform:scale(0.98);
+    }
+
+    .secondary-btn{
+      background:linear-gradient(135deg, #ffb347, #ffcc70);
+      box-shadow:0 10px 22px rgba(255, 179, 71, 0.22);
+    }
+
+    .footer{
+      text-align:center;
+      padding-top:8px;
+    }
+
+    .footer p{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    @media (max-width:560px){
+      .card{
+        padding:20px;
+        border-radius:22px;
+      }
+
+      .item{
+        grid-template-columns:1fr;
+        gap:6px;
+      }
+
+      .time{
+        font-size:14px;
+      }
+
+      .value{
+        font-size:17px;
+      }
+
+      .map-frame iframe{
+        height:240px;
+      }
+
+      .action-row{
+        flex-direction:column;
+      }
+
+      .action-row .btn{
+        width:100%;
+        text-align:center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="confetti" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="card">
+    <div class="badge">🎉 Invitation spéciale</div>
+
+    <h1>Tu es invité à mon anniversaire !</h1>
+    <p class="subtitle">
+      Bravo, tu as atteint 30 points au Snake ce qui te donne accès aux infos!
+      Voici toutes les informations pour venir fêter ça avec moi 🥳
+    </p>
+
+    <div class="grid">
+      <div class="info">
+        <div class="label">Date</div>
+        <div class="value">Samedi 25 avril 2026</div>
+      </div>
+
+      <div class="info">
+        <div class="label">Heure</div>
+        <div class="value">Dès 11h00</div>
+      </div>
+
+      <div class="info">
+        <div class="label">Lieu</div>
+        <div class="value">Boulodromme de St-Léonard</div>
+      </div>
+
+      <div class="info">
+        <div class="label"></div>
+        <div class="value">Si tu as des boules de pétanque, prends les! 👍</div>
+      </div>
+
+    </div>
+
+    <div class="program">
+      <h2>Programme de la journée</h2>
+
+      <div class="timeline">
+        <div class="item">
+          <div class="time">11h00</div>
+          <div class="desc">Apéro!</div>
+        </div>
+
+        <div class="item">
+          <div class="time">12h00</div>
+          <div class="desc">Grillade</div>
+        </div>
+
+        <div class="item">
+          <div class="time">13h30</div>
+          <div class="desc">Début du tournoi de pétanque</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="map-card">
+      <h2>Lieu de la fête</h2>
+      <p class="map-text">
+        Tu peux consulter le plan juste ici et ouvrir directement l’adresse dans Google Maps.
+      </p>
+
+      <div class="map-frame">
+        <iframe
+          src="https://www.google.com/maps?q=Rue%20du%20Stand%2C%20Saint-Léonard&output=embed"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+
+      <div class="action-row">
+        <a
+          class="btn secondary-btn"
+          href="https://maps.app.goo.gl/rgkZhjCW5Ni4TR6r9"
+          target="_blank"
+          rel="noopener noreferrer">
+          Ouvrir dans Google Maps
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Snake 30</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121926; --text:#e7eefc; --muted:#95a3bf;
+      --accent:#4de3a3; --danger:#ff5d6c;
+      --btn:#1a2436; --btn2:#22304a;
+    }
+    *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 50% -20%, #1b2a44 0%, var(--bg) 55%);
+      color:var(--text);
+      display:flex; min-height:100vh; align-items:center; justify-content:center;
+      padding:16px;
+      touch-action: none; /* important pour éviter le scroll pendant le jeu */
+      user-select:none;
+    }
+    .wrap{
+      width:min(560px, 100%);
+      display:grid; gap:12px;
+    }
+    .topbar{
+      background: rgba(18,25,38,0.75);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:12px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .topbar .title{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .topbar .title strong{font-size:14px; letter-spacing:0.2px;}
+    .topbar .title span{font-size:12px; color:var(--muted);}
+    .stats{
+      display:flex; gap:10px; align-items:center; font-variant-numeric: tabular-nums;
+    }
+    .pill{
+      background: rgba(26,36,54,0.85);
+      border:1px solid rgba(255,255,255,0.08);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--text);
+      display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
+    }
+    .pill b{color:var(--accent); font-weight:700;}
+    .board{
+      background: rgba(18,25,38,0.65);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:18px;
+      padding:10px;
+      display:grid; place-items:center;
+    }
+    canvas{
+      width:min(520px, 100%);
+      aspect-ratio: 1 / 1;
+      image-rendering: pixelated;
+      border-radius:14px;
+      background: #0a0f18;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap:12px;
+      align-items:center;
+    }
+    .cta{
+      display:flex; gap:10px; justify-content:space-between; align-items:center;
+      background: rgba(18,25,38,0.75);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    .cta .hint{font-size:12px; color:var(--muted); line-height:1.2;}
+    .btn{
+      border:1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(180deg, var(--btn2), var(--btn));
+      color: var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .btn:active{transform: scale(0.98);}
+    .dpad{
+      justify-self:center;
+      width:min(260px, 100%);
+      display:grid;
+      grid-template-columns: 64px 64px 64px;
+      grid-template-rows: 64px 64px 64px;
+      gap:10px;
+      place-items:center;
+    }
+    .dpad button{
+      width:64px; height:64px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(180deg, rgba(34,48,74,0.95), rgba(26,36,54,0.95));
+      color: var(--text);
+      font-size:18px;
+      font-weight:800;
+      touch-action: manipulation;
+    }
+    .dpad button:active{transform: scale(0.97);}
+    .dpad .up{grid-column:2; grid-row:1;}
+    .dpad .left{grid-column:1; grid-row:2;}
+    .dpad .mid{grid-column:2; grid-row:2; opacity:0.0; pointer-events:none;}
+    .dpad .right{grid-column:3; grid-row:2;}
+    .dpad .down{grid-column:2; grid-row:3;}
+
+    .msg{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:-4px;
+    }
+
+    .overlay{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      padding:18px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+    }
+    .modal{
+      width:min(440px, 100%);
+      background: rgba(18,25,38,0.92);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:18px;
+      padding:16px;
+      text-align:center;
+    }
+    .modal h2{margin:0 0 8px; font-size:18px;}
+    .modal p{margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.35;}
+    .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+    .danger{color:var(--danger);}
+    @media (max-width:420px){
+      .dpad{grid-template-columns:58px 58px 58px; grid-template-rows:58px 58px 58px;}
+      .dpad button{width:58px; height:58px; border-radius:16px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="topbar">
+      <div class="title">
+        <strong>Snake — objectif 30</strong>
+        <span>Swipe ou D-pad • Pause: bouton</span>
+      </div>
+      <div class="stats">
+        <div class="pill">Score: <b id="score">0</b>/30</div>
+        <div class="pill">Vitesse: <span id="speed">4</span></div>
+      </div>
+    </div>
+
+    <div class="board">
+      <canvas id="cv" width="360" height="360" aria-label="Snake board"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="cta">
+        <div class="hint">
+          <div><b>Règles</b> : mange 🍎, traverse les murs, évite de te mordre.</div>
+          <div>À <b>30</b>, le jeu s’arrête (victoire).</div>
+        </div>
+      </div>
+
+      <div class="dpad" aria-label="Contrôles">
+        <button class="up" data-dir="up" aria-label="Haut">▲</button>
+        <button class="left" data-dir="left" aria-label="Gauche">◀</button>
+        <div class="mid"></div>
+        <button class="right" data-dir="right" aria-label="Droite">▶</button>
+        <button class="down" data-dir="down" aria-label="Bas">▼</button>
+      </div>
+
+      <div class="cta" style="justify-content:flex-end; gap:10px;">
+        <button class="btn" id="btnStart">▶︎ Start</button>
+        <button class="btn" id="btnPause">⏸ Pause</button>
+        <button class="btn" id="btnRestart">↻ Restart</button>
+      </div>
+    </div>
+
+    <div class="msg">Astuce mobile : swipe sur la zone du jeu. Sur desktop : flèches du clavier.</div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2 id="modalTitle">Terminé</h2>
+      <p id="modalText"></p>
+      <div class="row">
+        <button class="btn" id="btnAgain">↻ Rejouer</button>
+        <button class="btn" id="btnClose">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const TARGET = 30;
+
+      const canvas = document.getElementById('cv');
+      const ctx = canvas.getContext('2d');
+
+      const scoreEl = document.getElementById('score');
+      const speedEl = document.getElementById('speed');
+
+      const btnStart = document.getElementById('btnStart');
+      const btnPause = document.getElementById('btnPause');
+      const btnRestart = document.getElementById('btnRestart');
+
+      const overlay = document.getElementById('overlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalText = document.getElementById('modalText');
+      const btnAgain = document.getElementById('btnAgain');
+      const btnClose = document.getElementById('btnClose');
+
+      const GRID = 18;                 // 18x18
+      const CELL = canvas.width / GRID;
+
+      // vitesse en "ticks" par seconde (adaptée un peu au score)
+      let baseTPS = 6;
+
+      let running = false;
+      let paused = false;
+      let rafId = null;
+      let lastTime = 0;
+      let acc = 0;
+
+      let snake, dir, nextDir, apple, score;
+
+      function randCell(excludedSet){
+        while(true){
+          const x = Math.floor(Math.random() * GRID);
+          const y = Math.floor(Math.random() * GRID);
+          const key = x + ',' + y;
+          if(!excludedSet.has(key)) return {x,y};
+        }
+      }
+
+      function reset(){
+        score = 0;
+        baseTPS = 6;
+        scoreEl.textContent = score;
+        speedEl.textContent = baseTPS;
+
+        snake = [
+          {x: 8, y: 10},
+          {x: 7, y: 10},
+          {x: 6, y: 10},
+        ];
+        dir = {x: 1, y: 0};
+        nextDir = {x: 1, y: 0};
+
+        const occ = new Set(snake.map(p => p.x + ',' + p.y));
+        apple = randCell(occ);
+
+        running = false;
+        paused = false;
+        lastTime = 0;
+        acc = 0;
+
+        draw(); // affiche direct
+      }
+
+      function openModal(title, text){
+        modalTitle.textContent = title;
+        modalText.textContent = text;
+        overlay.style.display = 'flex';
+      }
+      function closeModal(){
+        overlay.style.display = 'none';
+      }
+
+      function start(){
+        if(!running){
+          running = true;
+          paused = false;
+          lastTime = performance.now();
+          loop(lastTime);
+        } else if(paused){
+          paused = false;
+        }
+      }
+
+      function togglePause(){
+        if(!running) return;
+        paused = !paused;
+      }
+
+      function stop(){
+        running = false;
+        paused = false;
+        if(rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      function setDir(nx, ny){
+        // empêche le demi-tour instantané
+        if(nx === -dir.x && ny === -dir.y) return;
+        nextDir = {x:nx, y:ny};
+      }
+
+      function tick(){
+        dir = nextDir;
+
+        const head = snake[0];
+
+        let newX = head.x + dir.x;
+        let newY = head.y + dir.y;
+
+        // Wrap-around horizontal
+        if(newX < 0) newX = GRID - 1;
+        else if(newX >= GRID) newX = 0;
+
+        // Wrap-around vertical
+        if(newY < 0) newY = GRID - 1;
+        else if(newY >= GRID) newY = 0;
+
+        const newHead = {x: newX, y: newY};
+
+        // collision avec soi-même
+        for(const s of snake){
+          if(s.x === newHead.x && s.y === newHead.y){
+            stop();
+            openModal("Perdu 😵", `Tu t'es mordu. Score: ${score}/${TARGET}.`);
+            return;
+          }
+        }
+
+        snake.unshift(newHead);
+
+        // mange pomme
+        if(newHead.x === apple.x && newHead.y === apple.y){
+          score += 1;
+          scoreEl.textContent = score;
+
+          // petite accélération progressive (plafonnée)
+          baseTPS = 6;
+          speedEl.textContent = baseTPS;
+
+          if(score >= TARGET){
+            stop();
+            draw();
+            openModal("Gagné 🎉", "Bravo ! Tu as débloqué les infos de l'anniversaire...");
+
+            setTimeout(() => {
+              window.location.href = "anniversaire.html";
+            }, 1500);
+
+            return;
+          }
+
+          const occ = new Set(snake.map(p => p.x + ',' + p.y));
+          apple = randCell(occ);
+        } else {
+          snake.pop();
+        }
+      }
+
+      function draw(){
+        // fond + grille légère
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        // fond
+        ctx.fillStyle = '#0a0f18';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        // grille subtile
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        for(let i=1;i<GRID;i++){
+          ctx.beginPath();
+          ctx.moveTo(i*CELL, 0);
+          ctx.lineTo(i*CELL, canvas.height);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, i*CELL);
+          ctx.lineTo(canvas.width, i*CELL);
+          ctx.stroke();
+        }
+
+        // pomme
+        ctx.fillStyle = '#ff5d6c';
+        roundRect(apple.x*CELL+2, apple.y*CELL+2, CELL-4, CELL-4, 6, true);
+
+        // serpent
+        for(let i=snake.length-1;i>=0;i--){
+          const p = snake[i];
+          const isHead = i===0;
+          ctx.fillStyle = isHead ? '#4de3a3' : 'rgba(77,227,163,0.85)';
+          roundRect(p.x*CELL+2, p.y*CELL+2, CELL-4, CELL-4, 7, true);
+
+          if(isHead){
+            // petits "yeux"
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            const ex = p.x*CELL + CELL*0.35;
+            const ey = p.y*CELL + CELL*0.35;
+            ctx.beginPath(); ctx.arc(ex, ey, CELL*0.06, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(ex+CELL*0.28, ey, CELL*0.06, 0, Math.PI*2); ctx.fill();
+          }
+        }
+
+        if(!running){
+          // texte d'accueil
+          ctx.fillStyle = 'rgba(231,238,252,0.9)';
+          ctx.font = 'bold 16px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('Appuie sur Start', canvas.width/2, canvas.height/2 - 6);
+          ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.fillStyle = 'rgba(149,163,191,0.95)';
+          ctx.fillText('Swipe / flèches • Objectif 30', canvas.width/2, canvas.height/2 + 16);
+        } else if(paused){
+          ctx.fillStyle = 'rgba(0,0,0,0.45)';
+          ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.fillStyle = 'rgba(231,238,252,0.95)';
+          ctx.font = 'bold 18px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('Pause', canvas.width/2, canvas.height/2);
+        }
+      }
+
+      function loop(t){
+        rafId = requestAnimationFrame(loop);
+        const dt = (t - lastTime) / 1000;
+        lastTime = t;
+
+        draw();
+
+        if(!running || paused) return;
+
+        // accumulateur pour ticks fixes
+        acc += dt;
+        const step = 1 / baseTPS;
+        while(acc >= step){
+          tick();
+          acc -= step;
+          if(!running) break;
+        }
+      }
+
+      function roundRect(x, y, w, h, r, fill){
+        const rr = Math.min(r, w/2, h/2);
+        ctx.beginPath();
+        ctx.moveTo(x+rr, y);
+        ctx.arcTo(x+w, y, x+w, y+h, rr);
+        ctx.arcTo(x+w, y+h, x, y+h, rr);
+        ctx.arcTo(x, y+h, x, y, rr);
+        ctx.arcTo(x, y, x+w, y, rr);
+        ctx.closePath();
+        if(fill) ctx.fill();
+      }
+
+      // --- Inputs: clavier ---
+      window.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if(k === 'ArrowUp') setDir(0,-1);
+        else if(k === 'ArrowDown') setDir(0,1);
+        else if(k === 'ArrowLeft') setDir(-1,0);
+        else if(k === 'ArrowRight') setDir(1,0);
+        else if(k === ' ') togglePause();
+      }, {passive:true});
+
+      // --- Inputs: boutons tactiles ---
+      document.querySelectorAll('[data-dir]').forEach(btn => {
+        const map = {up:[0,-1], down:[0,1], left:[-1,0], right:[1,0]};
+        const dirName = btn.getAttribute('data-dir');
+        const [x,y] = map[dirName];
+
+        // pointerdown évite le délai + marche sur mobile
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          setDir(x,y);
+        }, {passive:false});
+      });
+
+      // --- Inputs: swipe sur le canvas ---
+      let touchStart = null;
+      function onPointerDown(e){
+        // capture seulement si c'est un touch/pen ou click sur zone
+        const p = getPoint(e);
+        touchStart = {x:p.x, y:p.y, t: performance.now()};
+      }
+      function onPointerUp(e){
+        if(!touchStart) return;
+        const p = getPoint(e);
+        const dx = p.x - touchStart.x;
+        const dy = p.y - touchStart.y;
+        const adx = Math.abs(dx), ady = Math.abs(dy);
+
+        // seuil swipe (en px)
+        const TH = 18;
+        if(Math.max(adx, ady) >= TH){
+          if(adx > ady){
+            setDir(dx > 0 ? 1 : -1, 0);
+          } else {
+            setDir(0, dy > 0 ? 1 : -1);
+          }
+        }
+        touchStart = null;
+      }
+      function getPoint(e){
+        if(e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+        if(e.changedTouches && e.changedTouches[0]) return {x:e.changedTouches[0].clientX, y:e.changedTouches[0].clientY};
+        return {x:e.clientX, y:e.clientY};
+      }
+
+      // pointer events pour mobile/desktop
+      canvas.addEventListener('pointerdown', (e)=>{ e.preventDefault(); onPointerDown(e); }, {passive:false});
+      canvas.addEventListener('pointerup', (e)=>{ e.preventDefault(); onPointerUp(e); }, {passive:false});
+      canvas.addEventListener('pointercancel', ()=>{ touchStart=null; }, {passive:true});
+
+      // --- UI boutons ---
+      btnStart.addEventListener('click', () => start());
+      btnPause.addEventListener('click', () => togglePause());
+      btnRestart.addEventListener('click', () => { stop(); reset(); });
+
+      btnAgain.addEventListener('click', () => { closeModal(); stop(); reset(); start(); });
+      btnClose.addEventListener('click', () => closeModal());
+      overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+      // évite le scroll avec les flèches sur mobile + gestures
+      document.addEventListener('touchmove', (e)=>{ e.preventDefault(); }, {passive:false});
+
+      // init
+      reset();
+    })();
+  </script>
+</body>
+</html>
